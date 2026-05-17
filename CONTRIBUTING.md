@@ -16,9 +16,14 @@ Open an issue before starting work on non-trivial changes. This avoids duplicate
 
 1. Fork the repo and create a branch from `main`
 2. Keep changes focused — one fix or feature per PR
-3. Test on real hardware before submitting
-4. Use [Conventional Commits](https://www.conventionalcommits.org/) for commit messages (`fix:`, `feat:`, `docs:`, etc.)
-5. Update `CHANGELOG.md` under `[Unreleased]`
+3. Use [Conventional Commits](https://www.conventionalcommits.org/) for commit messages (`fix:`, `feat:`, `docs:`, etc.)
+4. Fill out the PR template — in particular the hardware section, since IPMI behaviour varies between Dell models
+5. Before submitting, confirm:
+   - Tested on real hardware with `ipmitool` fan speed commands verified
+   - Service restarts cleanly
+   - Watchdog behaves correctly
+   - `CHANGELOG.md` updated under `[Unreleased]`
+   - No hardcoded values that belong in `config.yaml`
 
 ## Hardware compatibility
 
