@@ -121,7 +121,7 @@ def get_gpu_temperature(logger: logging.Logger) -> int | None:
 def percent_to_hex(percent: int) -> str:
     """Convert fan percentage (0-100) to hex string for ipmitool."""
     value = max(0, min(100, percent))
-    return hex(round(value * 255 / 100))
+    return hex(round(value))
 
 
 def set_fan_speed(percent: int, config: dict, logger: logging.Logger) -> bool:
