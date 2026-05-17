@@ -11,10 +11,6 @@ Restart=always
 RestartSec=10
 Environment=FAN_CONTROL_CONFIG=/etc/dell-fan-control/config.yaml
 
-# If the service crashes, fans stay at last set speed
-# The watchdog service will detect the stall via heartbeat file
-WatchdogSec=120
-
 # Logging goes to journald and the log file configured in config.yaml
 StandardOutput=journal
 StandardError=journal
