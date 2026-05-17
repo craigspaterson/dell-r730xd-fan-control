@@ -1,0 +1,24 @@
+[Unit]
+Description=Dell R730xd GPU Fan Control Daemon
+Documentation=https://github.com/YOUR_USERNAME/dell-r730xd-fan-control
+After=network.target nvidia-persistenced.service
+Wants=nvidia-persistenced.service
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/python3 /opt/dell-fan-control/fan_control.py
+Restart=always
+RestartSec=10
+Environment=FAN_CONTROL_CONFIG=/etc/dell-fan-control/config.yaml
+
+# If the service crashes, fans stay at last set speed
+# The watchdog service will detect the stall via heartbeat file
+WatchdogSec=120
+
+# Logging goes to journald and the log file configured in config.yaml
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=dell-fan-control
+
+[Install]
+WantedBy=multi-user.target

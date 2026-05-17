@@ -1,0 +1,61 @@
+# Dell R730xd Fan Control Configuration
+# Deployed to: /etc/dell-fan-control/config.yaml
+
+# How often to check GPU temperature and adjust fans (seconds)
+polling_interval_seconds: 30
+
+# Heartbeat file path — updated each poll cycle
+# Used by watchdog to detect if the daemon has stalled
+heartbeat_file: /var/run/fan_control.heartbeat
+
+# Logging
+log_level: INFO   # DEBUG, INFO, WARNING, ERROR
+log_file: /var/log/dell-fan-control.log
+
+# IPMI commands for fan control
+# These are specific to Dell PowerEdge R730/R730xd
+fan:
+  # Disable iDRAC automatic fan control
+  manual_control_command: "ipmitool raw 0x30 0x30 0x01 0x00"
+
+  # Set fan speed — {hex_speed} is replaced at runtime
+  set_speed_command: "ipmitool raw 0x30 0x30 0x02 0xff {hex_speed}"
+
+  # Re-enable iDRAC automatic fan control (used on clean daemon exit)
+  restore_auto_command: "ipmitool raw 0x30 0x30 0x01 0x01"
+
+  # Tell iDRAC a third-party PCIe card is installed
+  # This improves iDRAC's awareness of non-Dell GPU heat output
+  third_party_pcie_command: "ipmitool raw 0x30 0xce 0x00 0x16 0x05 0x00 0x00 0x00 0x05 0x00 0x01 0x00 0x00"
+
+# Temperature thresholds and corresponding fan speeds
+# Rules are evaluated in ascending order of max_temp
+# The first threshold where GPU temp <= max_temp wins
+#
+# Fan percent reference:
+#   0x1e = 30%  (quiet idle)
+#   0x32 = 50%  (light load)
+#   0x46 = 70%  (moderate load)
+#   0x59 = 85%  (heavy load — P40 under inference)
+#   0x64 = 100% (emergency)
+#
+thresholds:
+  - max_temp: 50
+    fan_percent: 30
+    label: idle
+
+  - max_temp: 65
+    fan_percent: 50
+    label: light
+
+  - max_temp: 75
+    fan_percent: 70
+    label: moderate
+
+  - max_temp: 85
+    fan_percent: 85
+    label: heavy
+
+  - max_temp: 999
+    fan_percent: 100
+    label: emergency
