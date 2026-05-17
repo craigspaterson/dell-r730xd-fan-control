@@ -29,6 +29,11 @@ fan:
   third_party_pcie_command: "ipmitool raw 0x30 0xce 0x00 0x16 0x05 0x00 0x00 0x00 0x05 0x00 0x01 0x00 0x00"
 
 # Temperature thresholds and corresponding fan speeds
+#
+# WARNING: Setting fan speeds too low for your workload can cause thermal
+# damage. Verify your GPU's safe operating temperature before reducing
+# any values below the defaults.
+#
 # Rules are evaluated in ascending order of max_temp
 # The first threshold where GPU temp <= max_temp wins
 #
