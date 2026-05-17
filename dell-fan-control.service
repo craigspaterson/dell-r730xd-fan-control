@@ -1,6 +1,6 @@
 [Unit]
 Description=Dell R730xd GPU Fan Control Daemon
-Documentation=https://github.com/YOUR_USERNAME/dell-r730xd-fan-control
+Documentation=https://github.com/craigspaterson/dell-r730xd-fan-control
 After=network.target nvidia-persistenced.service
 Wants=nvidia-persistenced.service
 

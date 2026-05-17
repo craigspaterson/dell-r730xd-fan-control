@@ -65,7 +65,7 @@ NVIDIA drivers must already be installed and `nvidia-smi` must be functional.
 ### 1. Clone the repo on the Proxmox host
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/dell-r730xd-fan-control.git
+git clone https://github.com/craigspaterson/dell-r730xd-fan-control.git
 cd dell-r730xd-fan-control
 ```
 
