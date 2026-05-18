@@ -2,15 +2,11 @@
 
 ## Reporting bugs
 
-Open an issue with:
-- Your server model and iDRAC version
-- GPU model
-- Host OS and kernel version
-- Relevant log output from `journalctl -u dell-fan-control` or `/var/log/dell-fan-control.log`
+Open an issue using the **Bug report** template. It will prompt you for the hardware details, iDRAC version, and log output needed to diagnose the problem.
 
 ## Suggesting changes
 
-Open an issue before starting work on non-trivial changes. This avoids duplicate effort and ensures the change fits the project's scope.
+Open an issue using the **Feature request** template before starting work on non-trivial changes. This avoids duplicate effort and ensures the change fits the project's scope.
 
 ## Pull requests
 
