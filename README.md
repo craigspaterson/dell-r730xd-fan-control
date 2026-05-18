@@ -4,14 +4,14 @@
 [![Latest Release](https://img.shields.io/github/v/release/craigspaterson/dell-r730xd-fan-control)](https://github.com/craigspaterson/dell-r730xd-fan-control/releases/latest)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
-Automatic GPU-aware fan control for the Dell PowerEdge R730xd running third-party GPUs (e.g. NVIDIA Tesla P40) on Proxmox.
+Automatic GPU-aware fan control for the Dell PowerEdge R730xd running third-party GPUs (e.g. NVIDIA Tesla P40) on Proxmox. Designed for homelab servers running local AI and LLM inference workloads where GPU thermals matter.
 
 > **Warning**
 > This software takes manual control of your server's fan speeds via IPMI, bypassing iDRAC's automatic fan management. Misconfigured thresholds or a daemon failure can result in insufficient cooling and thermal damage to your hardware. Review and test your configuration before running under sustained load. Manual IPMI fan control may also affect your Dell support agreement. This software is provided as-is with no warranty — see [LICENSE](LICENSE).
 
 ## Problem
 
-Dell's iDRAC does not recognise non-certified PCIe cards. When a third-party GPU is installed, iDRAC's default fan curve does not respond adequately to GPU heat output, causing the GPU to reach unsafe temperatures (85°C+) under inference load.
+Running local AI/LLM inference on a homelab GPU generates sustained heat that Dell's iDRAC is not designed to handle. iDRAC does not recognise non-certified PCIe cards, so its default fan curve does not respond adequately to GPU heat output — causing the GPU to reach unsafe temperatures (85°C+) under inference load.
 
 ## Solution
 
