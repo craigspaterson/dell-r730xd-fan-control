@@ -6,6 +6,20 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/).
 
 ## [Unreleased]
 
+## [1.0.1] - 2026-05-18
+
+### Fixed
+- Release workflow rewritten to use `gh` CLI to avoid backtick interpolation error in release notes ([#4](https://github.com/craigspaterson/dell-r730xd-fan-control/issues/4))
+- Release workflow now skips tag creation if tag already exists ([#4](https://github.com/craigspaterson/dell-r730xd-fan-control/issues/4))
+
+### Added
+- Bug report and feature request issue templates
+- `requirements.txt` to allow Dependabot to track PyYAML dependency
+
+### Changed
+- Upgraded `actions/checkout` from v4 to v6 for Node.js 24 compatibility ([#6](https://github.com/craigspaterson/dell-r730xd-fan-control/issues/6))
+- Upgraded `actions/setup-python` from v5 to v6 for Node.js 24 compatibility ([#7](https://github.com/craigspaterson/dell-r730xd-fan-control/issues/7))
+
 ## [1.0.0] - 2026-05-17
 
 ### Added
