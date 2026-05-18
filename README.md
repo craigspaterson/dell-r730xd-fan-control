@@ -1,9 +1,5 @@
 # Dell R730xd Fan Control
 
-[![CI](https://github.com/craigspaterson/dell-r730xd-fan-control/actions/workflows/ci.yml/badge.svg)](https://github.com/craigspaterson/dell-r730xd-fan-control/actions/workflows/ci.yml)
-[![Latest Release](https://img.shields.io/github/v/release/craigspaterson/dell-r730xd-fan-control)](https://github.com/craigspaterson/dell-r730xd-fan-control/releases/latest)
-[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-
 Automatic GPU-aware fan control for the Dell PowerEdge R730xd running third-party GPUs (e.g. NVIDIA Tesla P40) on Proxmox.
 
 > **Warning**
