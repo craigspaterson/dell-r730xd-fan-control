@@ -4,7 +4,7 @@
 [![Latest Release](https://img.shields.io/github/v/release/craigspaterson/dell-r730xd-fan-control)](https://github.com/craigspaterson/dell-r730xd-fan-control/releases/latest)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
-Automatic GPU-aware fan control for the Dell PowerEdge R730xd running third-party GPUs (e.g. NVIDIA Tesla P40) on Proxmox. Designed for homelab servers running local AI and LLM inference workloads where GPU thermals matter.
+Automatic fan control for the Dell PowerEdge R730xd running third-party GPUs (e.g. NVIDIA Tesla P40) on Proxmox. Monitors both GPU and CPU temperatures independently and sets fan speed to the maximum required by either source. Designed for homelab servers running local AI and LLM inference workloads.
 
 > **Warning**
 > This software takes manual control of your server's fan speeds via IPMI, bypassing iDRAC's automatic fan management. Misconfigured thresholds or a daemon failure can result in insufficient cooling and thermal damage to your hardware. Review and test your configuration before running under sustained load. Manual IPMI fan control may also affect your Dell support agreement. This software is provided as-is with no warranty — see [LICENSE](LICENSE).
@@ -17,8 +17,9 @@ Running local AI/LLM inference on a homelab GPU generates sustained heat that De
 
 A Python daemon running on the Proxmox host that:
 
-- Reads GPU temperature every 30 seconds via `nvidia-smi`
-- Adjusts chassis fan speed via `ipmitool` based on configurable thresholds
+- Reads GPU temperature via `nvidia-smi` and CPU temperatures via `ipmitool` every 30 seconds
+- Evaluates each source against its own configurable threshold table
+- Sets chassis fan speed to the maximum required by any source
 - Runs as a systemd service with automatic restart
 - Includes a watchdog that sets fans to a safe speed if the daemon stalls
 - Restores iDRAC automatic fan control on clean shutdown
@@ -28,19 +29,34 @@ A Python daemon running on the Proxmox host that:
 | Component | Details |
 |-----------|---------|
 | Server | Dell PowerEdge R730xd |
+| CPUs | 2× Intel Xeon E5-2690 v3 (12C, 135W TDP each) |
 | GPU | NVIDIA Tesla P40 24GB |
 | Host OS | Proxmox VE (Debian Trixie base) |
 | iDRAC | iDRAC8 Express |
 
 ## Temperature / Fan Profile
 
+Fan speed is set to the maximum required by either source. Each source has its own threshold table.
+
+**GPU** (NVIDIA Tesla P40):
+
 | GPU Temp | Fan Speed | Label |
 |----------|-----------|-------|
-| < 50°C | 30% | Idle |
-| 50–65°C | 50% | Light load |
-| 65–75°C | 70% | Moderate load |
-| 75–85°C | 85% | Heavy load |
+| ≤ 50°C | 30% | Idle |
+| ≤ 65°C | 50% | Light load |
+| ≤ 75°C | 70% | Moderate load |
+| ≤ 85°C | 85% | Heavy load |
 | > 85°C | 100% | Emergency |
+
+**CPU** (E5-2690 v3, Tjmax 90°C):
+
+| CPU Temp | Fan Speed | Label |
+|----------|-----------|-------|
+| ≤ 45°C | 30% | Idle |
+| ≤ 60°C | 50% | Light load |
+| ≤ 70°C | 70% | Moderate load |
+| ≤ 80°C | 85% | Heavy load |
+| > 80°C | 100% | Emergency |
 
 All thresholds and fan speeds are configurable in `config.yaml`.
 
@@ -109,13 +125,25 @@ systemctl restart dell-fan-control
 Key settings:
 
 ```yaml
-polling_interval_seconds: 30   # How often to check GPU temp
+polling_interval_seconds: 30   # How often to check temperatures
 
-thresholds:
-  - max_temp: 50
-    fan_percent: 30
-    label: idle
-  # ... add or adjust as needed
+sources:
+  gpu:
+    failure_fallback_percent: 80  # Fan speed if GPU temp cannot be read
+    thresholds:
+      - max_temp: 50
+        fan_percent: 30
+        label: idle
+      # ... add or adjust as needed
+
+  cpu:
+    sensors: ["CPU1 Temp", "CPU2 Temp"]  # ipmitool SDR sensor names
+    failure_fallback_percent: 80
+    thresholds:
+      - max_temp: 45
+        fan_percent: 30
+        label: idle
+      # ... add or adjust as needed
 ```
 
 ## Updating
@@ -153,6 +181,9 @@ ipmitool raw 0x30 0x30 0x01 0x01
 
 # Check GPU temperature
 nvidia-smi --query-gpu=temperature.gpu --format=csv,noheader,nounits
+
+# Check CPU temperatures
+ipmitool sdr type Temperature
 ```
 
 ## Fan Speed Reference
@@ -166,7 +197,7 @@ nvidia-smi --query-gpu=temperature.gpu --format=csv,noheader,nounits
 | 70% | 0x46 |
 | 75% | 0x4b |
 | 80% | 0x50 |
-| 85% | 0x56 |
+| 85% | 0x55 |
 | 100% | 0x64 |
 
 ## Watchdog
