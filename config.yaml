@@ -1,7 +1,7 @@
 # Dell R730xd Fan Control Configuration
 # Deployed to: /etc/dell-fan-control/config.yaml
 
-# How often to check GPU temperature and adjust fans (seconds)
+# How often to check temperatures and adjust fans (seconds)
 polling_interval_seconds: 30
 
 # Heartbeat file path — updated each poll cycle
@@ -25,42 +25,73 @@ fan:
   restore_auto_command: "ipmitool raw 0x30 0x30 0x01 0x01"
 
   # Tell iDRAC a third-party PCIe card is installed
-  # This improves iDRAC's awareness of non-Dell GPU heat output
   third_party_pcie_command: "ipmitool raw 0x30 0xce 0x00 0x16 0x05 0x00 0x00 0x00 0x05 0x00 0x01 0x00 0x00"
 
-# Temperature thresholds and corresponding fan speeds
+# Temperature sources and fan speed thresholds.
+# Fan speed is set to the maximum speed required by any source.
+# Each source evaluates its threshold table independently (ascending order, first match wins).
 #
 # WARNING: Setting fan speeds too low for your workload can cause thermal
-# damage. Verify your GPU's safe operating temperature before reducing
-# any values below the defaults.
-#
-# Rules are evaluated in ascending order of max_temp
-# The first threshold where GPU temp <= max_temp wins
+# damage. Verify your safe operating temperatures before reducing any values
+# below the defaults.
 #
 # Fan percent reference:
 #   0x1e = 30%  (quiet idle)
 #   0x32 = 50%  (light load)
 #   0x46 = 70%  (moderate load)
-#   0x59 = 85%  (heavy load — P40 under inference)
+#   0x59 = 85%  (heavy load)
 #   0x64 = 100% (emergency)
 #
-thresholds:
-  - max_temp: 50
-    fan_percent: 30
-    label: idle
+sources:
+  gpu:
+    # Fan speed when GPU temperature cannot be read
+    failure_fallback_percent: 80
+    thresholds:
+      - max_temp: 50
+        fan_percent: 30
+        label: idle
 
-  - max_temp: 65
-    fan_percent: 50
-    label: light
+      - max_temp: 65
+        fan_percent: 50
+        label: light
 
-  - max_temp: 75
-    fan_percent: 70
-    label: moderate
+      - max_temp: 75
+        fan_percent: 70
+        label: moderate
 
-  - max_temp: 85
-    fan_percent: 85
-    label: heavy
+      - max_temp: 85
+        fan_percent: 85
+        label: heavy
 
-  - max_temp: 999
-    fan_percent: 100
-    label: emergency
+      - max_temp: 999
+        fan_percent: 100
+        label: emergency
+
+  cpu:
+    # Sensor names from `ipmitool sdr type Temperature` — max across all is used
+    sensors:
+      - "CPU1 Temp"
+      - "CPU2 Temp"
+    # Fan speed when CPU temperature cannot be read
+    failure_fallback_percent: 80
+    thresholds:
+      # E5-2690 v3 Tjmax is 90°C — these thresholds give a 10°C safety margin at emergency
+      - max_temp: 45
+        fan_percent: 30
+        label: idle
+
+      - max_temp: 60
+        fan_percent: 50
+        label: light
+
+      - max_temp: 70
+        fan_percent: 70
+        label: moderate
+
+      - max_temp: 80
+        fan_percent: 85
+        label: heavy
+
+      - max_temp: 999
+        fan_percent: 100
+        label: emergency
