@@ -100,7 +100,12 @@ def load_config(config_path: str) -> tuple[dict, list[str]]:
         return DEFAULT_CONFIG, []
 
     with open(path) as f:
-        user_config = yaml.safe_load(f)
+        user_config = yaml.safe_load(f) or {}
+
+    if not isinstance(user_config, dict):
+        raise ValueError(
+            f"Config file {config_path} must be a YAML mapping, got {type(user_config).__name__}"
+        )
 
     warnings = []
 
@@ -159,14 +164,14 @@ def get_cpu_temperature(sensors: list[str], logger: logging.Logger) -> int | Non
 
     temps = []
     for line in output.splitlines():
+        # ipmitool sdr format: "CPU1 Temp | 52 degrees C | ok"
         parts = line.split("|")
-        if len(parts) < 5:
+        if len(parts) < 3:
             continue
         if parts[0].strip() not in sensors:
             continue
         try:
-            # Last field: "52 degrees C" or "No Reading"
-            temp_field = parts[-1].strip()
+            temp_field = parts[1].strip()  # "52 degrees C"
             temp = int(temp_field.split()[0])
             temps.append(temp)
         except (ValueError, IndexError):
@@ -264,7 +269,7 @@ def main():
     gpu_cfg = config["sources"]["gpu"]
     cpu_cfg = config["sources"]["cpu"]
 
-    baseline = min(
+    baseline = max(
         gpu_cfg["thresholds"][0]["fan_percent"],
         cpu_cfg["thresholds"][0]["fan_percent"],
     )
