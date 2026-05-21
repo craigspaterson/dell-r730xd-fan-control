@@ -176,6 +176,10 @@ The watchdog monitors the heartbeat file written by the daemon every poll cycle.
 1. Sets fans to 80% (safe fallback)
 2. Restarts the `dell-fan-control` service
 
+## Community
+
+Please read [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md) before contributing or participating in project discussions.
+
 ## License
 
 MIT
